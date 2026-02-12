@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1" />
+    <title>Connected Commerce KPI Uplift — Cheil</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #0a0e27;
+        --bg-light: #1a1f3a;
+        --primary: #FF8800;
+        --secondary: #F300FF;
+        --accent: #FF8800;
+        --text: #ffffff;
+        --text-dim: #8a8fa3;
+        --success: #97F84C;
+        --customer: #FF8800;
+        --data: #97F84C;
+        --operations: #FDF150;
+        --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: var(--font);
+        color: var(--text);
+        cursor: none;
+        user-select: none;
+      }
+
+      /* ── Slide container ── */
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.96);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        pointer-events: none;
+        padding: 60px 80px;
+      }
+      .slide.active {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+      }
+
+      /* ── Logo watermark ── */
+      .logo {
+        position: fixed;
+        top: 40px;
+        left: 48px;
+        height: 36px;
+        opacity: 0.85;
+        z-index: 100;
+      }
+
+      /* ── Progress bar ── */
+      .progress {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background: var(--primary);
+        transition: width 0.6s ease;
+        z-index: 100;
+      }
+
+      /* ── Slide-position dots ── */
+      .dots {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 100;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        transition: background 0.4s, transform 0.4s;
+      }
+      .dot.active {
+        background: var(--primary);
+        transform: scale(1.4);
+      }
+
+      /* ── Title slide ── */
+      .title-slide {
+        text-align: center;
+      }
+      .title-slide h1 {
+        font-size: 72px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .title-slide .subtitle {
+        font-size: 28px;
+        color: var(--text-dim);
+        margin-top: 24px;
+        font-weight: 400;
+      }
+      .title-slide .brand-bar {
+        margin-top: 48px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 18px;
+        color: var(--text-dim);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+      .title-slide .brand-bar img {
+        height: 28px;
+      }
+
+      /* ── Section title slide ── */
+      .section-slide {
+        text-align: center;
+      }
+      .section-slide .section-label {
+        font-size: 20px;
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        opacity: 0.5;
+        margin-bottom: 20px;
+      }
+      .section-slide h2 {
+        font-size: 64px;
+        font-weight: 800;
+        letter-spacing: -1px;
+      }
+      .section-slide .section-line {
+        width: 80px;
+        height: 4px;
+        border-radius: 2px;
+        margin-top: 32px;
+      }
+
+      /* ── KPI slide ── */
+      .kpi-slide {
+        text-align: center;
+        gap: 12px;
+      }
+
+      .kpi-category {
+        display: inline-block;
+        padding: 6px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        opacity: 0.9;
+      }
+
+      .kpi-arrow {
+        font-size: 56px;
+        line-height: 1;
+        margin-top: 8px;
+      }
+      .kpi-arrow.up {
+        color: var(--success);
+      }
+      .kpi-arrow.down {
+        color: var(--secondary);
+      }
+
+      .kpi-number {
+        font-size: 220px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -6px;
+        margin: -8px 0;
+        filter: drop-shadow(0 0 60px currentColor);
+      }
+      .kpi-number.up {
+        color: var(--accent);
+      }
+      .kpi-number.down {
+        color: var(--secondary);
+      }
+
+      .kpi-unit {
+        font-size: 48px;
+        font-weight: 700;
+        vertical-align: super;
+        letter-spacing: -1px;
+      }
+
+      .kpi-label {
+        font-size: 36px;
+        font-weight: 600;
+        max-width: 800px;
+        line-height: 1.3;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .kpi-desc {
+        font-size: 22px;
+        color: var(--text-dim);
+        max-width: 700px;
+        margin-top: 4px;
+      }
+
+      .kpi-source {
+        margin-top: 16px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.28);
+        letter-spacing: 1px;
+      }
+
+      /* ── Closing slide ── */
+      .closing-slide {
+        text-align: center;
+      }
+      .closing-slide h2 {
+        font-size: 60px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .closing-slide .cta {
+        margin-top: 32px;
+        font-size: 26px;
+        color: var(--text-dim);
+      }
+      .closing-slide .brand-bar {
+        margin-top: 48px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 18px;
+        color: var(--text-dim);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+      .closing-slide .brand-bar img {
+        height: 28px;
+      }
+
+      /* ── Animated gradient background blobs ── */
+      .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.12;
+        pointer-events: none;
+        z-index: 0;
+        animation: drift 20s ease-in-out infinite alternate;
+      }
+      .bg-blob.a {
+        width: 600px;
+        height: 600px;
+        background: var(--primary);
+        top: -10%;
+        left: -5%;
+      }
+      .bg-blob.b {
+        width: 500px;
+        height: 500px;
+        background: var(--secondary);
+        bottom: -10%;
+        right: -5%;
+        animation-delay: -7s;
+      }
+      .bg-blob.c {
+        width: 400px;
+        height: 400px;
+        background: var(--accent);
+        top: 40%;
+        left: 60%;
+        animation-delay: -13s;
+      }
+
+      @keyframes drift {
+        to {
+          transform: translate(80px, 60px) scale(1.15);
+        }
+      }
+
+      /* ── Glow pulse on active KPI number ── */
+      .slide.active .kpi-number {
+        animation: glow-pulse 2.5s ease-in-out infinite;
+      }
+      @keyframes glow-pulse {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 40px currentColor);
+        }
+        50% {
+          filter: drop-shadow(0 0 80px currentColor);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background blobs -->
+    <div class="bg-blob a"></div>
+    <div class="bg-blob b"></div>
+    <div class="bg-blob c"></div>
+
+    <!-- Logo -->
+    <img class="logo" src="assets/Cheil_logo_white.svg" alt="Cheil" />
+
+    <!-- Progress bar -->
+    <div class="progress" id="progress"></div>
+
+    <!-- Dots -->
+    <div class="dots" id="dots"></div>
+
+    <!-- Slide deck -->
+    <div class="deck" id="deck">
+      <!-- 0: Title -->
+      <div class="slide title-slide" data-type="title">
+        <h1>Connected Commerce<br />KPI Uplift</h1>
+        <p class="subtitle">
+          15 data-driven opportunities to transform retail performance
+        </p>
+        <div class="brand-bar">
+          <img src="assets/Cheil_logo_white.svg" alt="Cheil" /> EuroShop 2026
+        </div>
+      </div>
+
+      <!-- 1: Section — Connected Commerce -->
+      <div
+        class="slide section-slide"
+        data-type="section"
+        data-color="var(--customer)"
+      >
+        <p class="section-label">Section 1 of 4</p>
+        <h2 style="color: var(--customer)">Connected Commerce</h2>
+        <div class="section-line" style="background: var(--customer)"></div>
+      </div>
+
+      <!-- 2 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(255, 136, 0, 0.15); color: var(--customer)"
+          >Connected Commerce</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="23" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Repeat Store Visits</div>
+        <div class="kpi-desc">
+          Unified channels create seamless customer journeys
+        </div>
+        <div class="kpi-source">Source: McKinsey Retail Practice</div>
+      </div>
+
+      <!-- 3 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(255, 136, 0, 0.15); color: var(--customer)"
+          >Connected Commerce</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="15" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Revenue Uplift</div>
+        <div class="kpi-desc">
+          AI-driven personalization across every touchpoint
+        </div>
+        <div class="kpi-source">Source: BCG Retail Report</div>
+      </div>
+
+      <!-- 4 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(255, 136, 0, 0.15); color: var(--customer)"
+          >Connected Commerce</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="32" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Shoppers Buy More</div>
+        <div class="kpi-desc">
+          Click &amp; collect drives incremental basket size
+        </div>
+        <div class="kpi-source">Source: ICSC Research</div>
+      </div>
+
+      <!-- 5 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(255, 136, 0, 0.15); color: var(--customer)"
+          >Connected Commerce</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div
+          class="kpi-number down"
+          data-value="7.4"
+          data-suffix="%"
+          data-decimals="1"
+        >
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Fulfillment Cost Reduction</div>
+        <div class="kpi-desc">
+          Ship-from-store optimizes last-mile economics
+        </div>
+        <div class="kpi-source">Source: Deloitte Supply Chain</div>
+      </div>
+
+      <!-- 6: Section — Supply Chain Intelligence -->
+      <div
+        class="slide section-slide"
+        data-type="section"
+        data-color="var(--data)"
+      >
+        <p class="section-label">Section 2 of 4</p>
+        <h2 style="color: var(--data)">Supply Chain Intelligence</h2>
+        <div class="section-line" style="background: var(--data)"></div>
+      </div>
+
+      <!-- 7 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(151, 248, 76, 0.12); color: var(--data)"
+          >Supply Chain</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="7" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">OTIF Improvement</div>
+        <div class="kpi-desc">
+          Supply chain control tower enables real-time visibility
+        </div>
+        <div class="kpi-source">Source: Gartner Supply Chain</div>
+      </div>
+
+      <!-- 8 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(151, 248, 76, 0.12); color: var(--data)"
+          >Supply Chain</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="50" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Forecast Error Reduction</div>
+        <div class="kpi-desc">
+          AI-powered demand planning replaces guesswork
+        </div>
+        <div class="kpi-source">Source: McKinsey Analytics</div>
+      </div>
+
+      <!-- 9 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(151, 248, 76, 0.12); color: var(--data)"
+          >Supply Chain</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="30" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Inventory Reduction</div>
+        <div class="kpi-desc">
+          AI distribution ops optimize stock across locations
+        </div>
+        <div class="kpi-source">Source: BCG Operations</div>
+      </div>
+
+      <!-- 10 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(151, 248, 76, 0.12); color: var(--data)"
+          >Supply Chain</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="15" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Logistics Cost Savings</div>
+        <div class="kpi-desc">End-to-end AI supply chain orchestration</div>
+        <div class="kpi-source">Source: DHL Logistics Trend Report</div>
+      </div>
+
+      <!-- 11: Section — Warehouse & Automation -->
+      <div
+        class="slide section-slide"
+        data-type="section"
+        data-color="var(--operations)"
+      >
+        <p class="section-label">Section 3 of 4</p>
+        <h2 style="color: var(--operations)">Warehouse &amp; Automation</h2>
+        <div class="section-line" style="background: var(--operations)"></div>
+      </div>
+
+      <!-- 12 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(253, 241, 80, 0.12); color: var(--operations)"
+          >Automation</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="50" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Service Level Improvement</div>
+        <div class="kpi-desc">
+          Warehouse automation eliminates manual bottlenecks
+        </div>
+        <div class="kpi-source">Source: MHI Annual Report</div>
+      </div>
+
+      <!-- 13 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(253, 241, 80, 0.12); color: var(--operations)"
+          >Automation</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div class="kpi-number up" data-value="200" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Picking Productivity</div>
+        <div class="kpi-desc">AMR robotics transform warehouse throughput</div>
+        <div class="kpi-source">Source: Interact Analysis</div>
+      </div>
+
+      <!-- 14 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(253, 241, 80, 0.12); color: var(--operations)"
+          >Automation</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="60" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Operating Cost Reduction</div>
+        <div class="kpi-desc">
+          RPA automation handles repetitive processes 24/7
+        </div>
+        <div class="kpi-source">Source: Deloitte RPA Survey</div>
+      </div>
+
+      <!-- 15 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(253, 241, 80, 0.12); color: var(--operations)"
+          >Automation</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="15" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Conversion Cost Reduction</div>
+        <div class="kpi-desc">
+          Connected factory integrates shop floor to top floor
+        </div>
+        <div class="kpi-source">Source: WEF Manufacturing Report</div>
+      </div>
+
+      <!-- 16: Section — Digital Integration -->
+      <div
+        class="slide section-slide"
+        data-type="section"
+        data-color="var(--secondary)"
+      >
+        <p class="section-label">Section 4 of 4</p>
+        <h2 style="color: var(--secondary)">Digital Integration</h2>
+        <div class="section-line" style="background: var(--secondary)"></div>
+      </div>
+
+      <!-- 17 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(243, 0, 255, 0.12); color: var(--secondary)"
+          >Digital</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="30" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Shipping Cost Reduction</div>
+        <div class="kpi-desc">
+          Out-of-home delivery networks cut last-mile spend
+        </div>
+        <div class="kpi-source">Source: Capgemini Last Mile</div>
+      </div>
+
+      <!-- 18 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(243, 0, 255, 0.12); color: var(--secondary)"
+          >Digital</span
+        >
+        <div class="kpi-arrow up">&#8593;</div>
+        <div
+          class="kpi-number up"
+          data-value="3.2"
+          data-suffix="%"
+          data-decimals="1"
+        >
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Annual EBIT Growth</div>
+        <div class="kpi-desc">
+          Digitized supply chain compounds margin gains year over year
+        </div>
+        <div class="kpi-source">Source: McKinsey Digital SCM</div>
+      </div>
+
+      <!-- 19 -->
+      <div class="slide kpi-slide" data-type="kpi">
+        <span
+          class="kpi-category"
+          style="background: rgba(243, 0, 255, 0.12); color: var(--secondary)"
+          >Digital</span
+        >
+        <div class="kpi-arrow down">&#8595;</div>
+        <div class="kpi-number down" data-value="50" data-suffix="%">
+          <span class="counter">0</span><span class="kpi-unit">%</span>
+        </div>
+        <div class="kpi-label">Machine Downtime Reduction</div>
+        <div class="kpi-desc">
+          Industry 4.0 predictive maintenance prevents failures
+        </div>
+        <div class="kpi-source">Source: PwC Industry 4.0</div>
+      </div>
+
+      <!-- 20: Closing -->
+      <div class="slide closing-slide" data-type="closing">
+        <h2>Let's Talk About<br />Your Uplift</h2>
+        <p class="cta">Visit our booth to explore a live demo</p>
+        <div class="brand-bar">
+          <img src="assets/Cheil_logo_white.svg" alt="Cheil" /> EuroShop 2026
+        </div>
+      </div>
+    </div>
+    <!-- /deck -->
+
+    <script>
+      (function () {
+        "use strict";
+
+        const SLIDE_DURATION = 3000; // ms per slide
+        const COUNT_DURATION = 1800; // ms for number animation
+        const TRANSITION_MS = 800; // matches CSS transition
+
+        const slides = Array.from(document.querySelectorAll(".slide"));
+        const total = slides.length;
+        const progress = document.getElementById("progress");
+        const dotsBox = document.getElementById("dots");
+
+        let current = 0;
+        let timer = null;
+
+        // Build dot indicators
+        slides.forEach(function (_, i) {
+          const d = document.createElement("div");
+          d.className = "dot";
+          dotsBox.appendChild(d);
+        });
+        const dots = Array.from(dotsBox.children);
+
+        // ── Count-up animation ──
+        function animateCounters(slide) {
+          const numEl = slide.querySelector(".kpi-number");
+          if (!numEl) return;
+          const counterSpan = numEl.querySelector(".counter");
+          if (!counterSpan) return;
+
+          const target = parseFloat(numEl.dataset.value);
+          const decimals = parseInt(numEl.dataset.decimals || "0", 10);
+          const start = performance.now();
+
+          function tick(now) {
+            const elapsed = now - start;
+            const t = Math.min(elapsed / COUNT_DURATION, 1);
+            // ease-out cubic
+            const ease = 1 - Math.pow(1 - t, 3);
+            const val = ease * target;
+            counterSpan.textContent = val.toFixed(decimals);
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          counterSpan.textContent = (0).toFixed(decimals);
+          requestAnimationFrame(tick);
+        }
+
+        // ── Show slide ──
+        function showSlide(index) {
+          slides.forEach(function (s, i) {
+            s.classList.toggle("active", i === index);
+          });
+          dots.forEach(function (d, i) {
+            d.classList.toggle("active", i === index);
+          });
+          progress.style.width = ((index + 1) / total) * 100 + "%";
+
+          // Trigger counter animation after transition starts
+          setTimeout(function () {
+            animateCounters(slides[index]);
+          }, 200);
+        }
+
+        function advance() {
+          current = (current + 1) % total;
+          showSlide(current);
+        }
+
+        // ── Init ──
+        showSlide(0);
+        timer = setInterval(advance, SLIDE_DURATION);
+
+        // Allow manual advance on click/touch (handy for testing)
+        document.addEventListener("click", function () {
+          clearInterval(timer);
+          advance();
+          timer = setInterval(advance, SLIDE_DURATION);
+        });
+      })();
+    </script>
+  </body>
+</html>
